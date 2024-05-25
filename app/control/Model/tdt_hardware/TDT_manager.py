@@ -47,6 +47,7 @@ class TDT_Circuit:
         self.circuit.stop()
         self.circuit_state = False
 
+
     def trigger_audio_sample_computer(self, audio_sample, time_bw_samples):
         sd.play(audio_sample.data, audio_sample.sample_rate)
         time.sleep(audio_sample.sample_length)

@@ -1,13 +1,12 @@
 from tkinter import PhotoImage
-from PIL import Image, ImageTk
 import customtkinter as ctk
 import tkinter as tk
 import warnings
 from tkinter import ttk
 
-import app.View.configuration_con as configuration
-from app.Controller.events import Event
-from app.Controller.utilities import time_class
+import app.control.View.configuration_con as configuration
+from app.control.Controller.events import Event
+from app.control.Controller.utilities import time_class
 
 
 

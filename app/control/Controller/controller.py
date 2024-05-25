@@ -1,15 +1,15 @@
 
 
 
-from app.Model.tdt_hardware.TDT_manager import TDT_Circuit
-from app.Model.vr_hardware.VR_manager import VR_Headset_Hardware
-from app.Model.data_manager import circuit_data
-from app.Controller.experiment_state import Experiment
-from app.Controller.utilities import CSVFile_Experiment
-from app.Controller.utilities import CSVFile_Settings
-from app.Controller.utilities import CSVFile_Calibration
-from app.Controller.utilities import time_class
-from app.Controller.events import Event
+from app.control.Model.tdt_hardware.TDT_manager import TDT_Circuit
+from app.control.Model.vr_hardware.VR_manager import VR_Headset_Hardware
+from app.control.Model.data_manager import circuit_data
+from app.control.Controller.experiment_state import Experiment
+from app.control.Controller.utilities import CSVFile_Experiment
+from app.control.Controller.utilities import CSVFile_Settings
+from app.control.Controller.utilities import CSVFile_Calibration
+from app.control.Controller.utilities import time_class
+from app.control.Controller.events import Event
 
 from enum import Enum, auto
 from threading import Thread

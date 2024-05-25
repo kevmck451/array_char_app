@@ -1,10 +1,9 @@
-from tkinter import PhotoImage
 import customtkinter as ctk
 from tkinter import ttk
 import tkinter as tk
 
-import app.View.configuration as configuration
-from app.Controller.events import Event
+import app.hardware.View.configuration as configuration
+from app.hardware.Controller.events import Event
 
 
 class Main_Window(ctk.CTk):
@@ -75,8 +74,8 @@ class Main_Frame(ctk.CTkFrame):
 
         # TDT Reset Button
         self.TDT_button = ctk.CTkButton(frame, text='Connect',
-                                              font=(configuration.main_font_style, configuration.main_font_size),
-                                              fg_color=configuration.button_fg_color, command=lambda: self.event_handler(Event.TDT_CONNECT))
+                                        font=(configuration.main_font_style, configuration.main_font_size),
+                                        fg_color=configuration.button_fg_color, command=lambda: self.event_handler(Event.TDT_CONNECT))
         self.TDT_button.grid(row=0, column=1, padx=configuration.x_pad_2, pady=configuration.y_pad_2, sticky='nsew')
 
         # VR Connection Status
@@ -86,8 +85,8 @@ class Main_Frame(ctk.CTkFrame):
 
         # VR Reset Button
         self.VR_button = ctk.CTkButton(frame, text='Connect',
-                                             font=(configuration.main_font_style, configuration.main_font_size),
-                                             fg_color=configuration.button_fg_color, command=lambda: self.event_handler(Event.VR_CONNECT))
+                                       font=(configuration.main_font_style, configuration.main_font_size),
+                                       fg_color=configuration.button_fg_color, command=lambda: self.event_handler(Event.VR_CONNECT))
         self.VR_button.grid(row=1, column=1, padx=configuration.x_pad_2, pady=configuration.y_pad_2, sticky='nsew')
 
     # BUTTON TOGGLE STATES ------------------------
@@ -111,17 +110,17 @@ class Main_Frame(ctk.CTkFrame):
     def toggle_tdt_button(self):
         if self.tdt_button_state == 0:
             self.tdt_status.configure(text=configuration.connection_status_TDT_C,
-                                     text_color=configuration.connected_color)
+                                      text_color=configuration.connected_color)
             self.TDT_button.configure(text='Disconnect',
-                                     fg_color=configuration.stop_fg_color, hover_color=configuration.stop_hover_color,
-                                     command=lambda: self.event_handler(Event.TDT_DISCONNECT))
+                                      fg_color=configuration.stop_fg_color, hover_color=configuration.stop_hover_color,
+                                      command=lambda: self.event_handler(Event.TDT_DISCONNECT))
             self.tdt_button_state += 1
         else:
             self.tdt_status.configure(text=configuration.connection_status_TDT,
-                                     text_color=configuration.not_connected_color)
+                                      text_color=configuration.not_connected_color)
             self.TDT_button.configure(text='Connect',
-                                     fg_color=configuration.button_fg_color, hover_color=configuration.button_hover_color,
-                                     command=lambda: self.event_handler(Event.TDT_CONNECT))
+                                      fg_color=configuration.button_fg_color, hover_color=configuration.button_hover_color,
+                                      command=lambda: self.event_handler(Event.TDT_CONNECT))
             self.tdt_button_state = 0
 
 

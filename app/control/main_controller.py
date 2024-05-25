@@ -1,5 +1,5 @@
-from app.View.Main_Window import Main_Window
-from app.Controller.controller import Controller
+from app.control.View.Control_Window import Main_Window
+from app.control.Controller.controller import Controller
 
 if __name__ == "__main__":
     controller = Controller()

@@ -1,10 +1,10 @@
 
-from app.Model.data_manager.csv_class import CSVFile
+from app.control.Model.data_manager.csv_class import CSVFile
 import numpy as np
 import random
 import os
 
-from app.Model.data_manager.audio_abstract import Audio_Abstract
+from app.control.Model.data_manager.audio_abstract import Audio_Abstract
 
 def base_path(relative_path):
     current_script_dir = os.path.dirname(os.path.abspath(__file__))
