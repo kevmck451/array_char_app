@@ -1,4 +1,4 @@
-# Anechoic Chamber Phase Array Characterization
+# Anechoic Chamber Phase Array Characterization Experiments
 
 
 ## Overview
