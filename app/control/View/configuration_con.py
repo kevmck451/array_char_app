@@ -22,14 +22,14 @@ y_pad_2 = 10
 main_font_style = "default_font"
 main_font_size = 20 #26
 
-playing_icon_filepath = base_path('docs/playing icon s.png')
-playing_icon_s_filepath = base_path('docs/playing icon ss.png')
-start_icon_filepath = base_path('docs/start icon s.png')
-stop_icon_filepath = base_path('docs/stop icon s.png')
-pause_icon_filepath = base_path('docs/pause icon s.png')
-load_icon_filepath = base_path('docs/load icon s.png')
-settings_icon_filepath = base_path('docs/settings icon s.png')
-reset_icon_filepath = base_path('docs/reset icon s.png')
+playing_icon_filepath = base_path('control/docs/playing icon s.png')
+playing_icon_s_filepath = base_path('control/docs/playing icon ss.png')
+start_icon_filepath = base_path('control/docs/start icon s.png')
+stop_icon_filepath = base_path('control/docs/stop icon s.png')
+pause_icon_filepath = base_path('control/docs/pause icon s.png')
+load_icon_filepath = base_path('control/docs/load icon s.png')
+settings_icon_filepath = base_path('control/docs/settings icon s.png')
+reset_icon_filepath = base_path('control/docs/reset icon s.png')
 
 button_fg_color = '#578CD5' # blue
 button_hover_color = '#496FA3' # blue
