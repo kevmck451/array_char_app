@@ -1,20 +1,29 @@
+import app.control.View.window_con as window_con
+
+
+
 import customtkinter as ctk
+import tkinter.font as tkFont
 import math
 from tkinter import filedialog, StringVar, Listbox, Scrollbar, END, SINGLE
 from pathlib import Path
 
+
+
+
+
 class SpeakerControlApp(ctk.CTk):
-    def __init__(self, num_speakers=33, window_width=1450, window_height=950):
+    def __init__(self, num_speakers=33):
         super().__init__()
         ctk.set_appearance_mode("dark")  # Enable dark mode
         ctk.set_default_color_theme("dark-blue")  # Optional: set a color theme
 
-        self.title("Circular Speaker Array Control")
+        self.title(window_con.window_title)
         self.num_speakers = num_speakers
-        self.window_width = window_width
-        self.window_height = window_height
-        self.canvas_size = window_height - 350  # Adjust canvas size to fit within the window
-        self.speaker_radius = 15
+        self.window_width = window_con.window_width
+        self.window_height = window_con.window_height
+        self.canvas_size = window_con.speaker_array_canvas_size
+        self.speaker_radius = window_con.speaker_radius
         self.speaker_positions = []
         self.gain_sliders = []
         self.slider_value_labels = []
@@ -41,10 +50,34 @@ class SpeakerControlApp(ctk.CTk):
         self.top_frame.pack(side=ctk.TOP, fill=ctk.BOTH, expand=True, padx=10, pady=10)
 
         self.left_frame = ctk.CTkFrame(self.top_frame)
-        self.left_frame.pack(side=ctk.LEFT, fill=ctk.Y, padx=10, pady=10)
+        self.left_frame.pack(side=ctk.LEFT, fill=ctk.BOTH, padx=10, pady=10)
 
-        self.hardware_connect_button = ctk.CTkButton(self.left_frame, text="Connect Hardware", fg_color="green", command=self.toggle_hardware_connect)
-        self.hardware_connect_button.pack(pady=5)
+        self.bottom_frame = ctk.CTkFrame(self.main_frame)
+        self.bottom_frame.pack(side=ctk.BOTTOM, fill=ctk.X, padx=10, pady=10)
+
+        self.global_control_frame = ctk.CTkFrame(self.bottom_frame)
+        self.global_control_frame.pack(fill=ctk.X, pady=10)
+
+
+        # -----------------------------------------------------------------------------------
+        # HARDWARE CONNECTION FRAME --------------
+        # -----------------------------------------------------------------------------------
+        underline_font = ctk.CTkFont(family="default_font", size=30, underline=True)
+        hardware_connect = ctk.CTkLabel(self.left_frame, text='Hardware Connection', font=underline_font)
+        hardware_connect.pack(pady=30)
+
+        self.hardware_connect_button = ctk.CTkButton(self.left_frame, text="Connect",
+                                                     fg_color=window_con.start_fg_color,
+                                                     hover_color=window_con.start_hover_color,
+                                                     command=self.toggle_hardware_connect)
+        self.hardware_connect_button.pack()
+
+        # -----------------------------------------------------------------------------------
+        # MEDIA SELECT FRAME --------------
+        # -----------------------------------------------------------------------------------
+
+        media_select_title = ctk.CTkLabel(self.left_frame, text='Media Select Options', font=underline_font)
+        media_select_title.pack(pady=30)
 
         self.file_listbox_frame = ctk.CTkFrame(self.left_frame)
         self.file_listbox_frame.pack(fill=ctk.Y, expand=False, pady=(0, 5))
@@ -62,17 +95,37 @@ class SpeakerControlApp(ctk.CTk):
         self.load_file_button = ctk.CTkButton(self.left_frame, text="Load File", command=self.load_file)
         self.load_file_button.pack(pady=5)
 
-        self.play_button = ctk.CTkButton(self.left_frame, text="Play", fg_color="green", command=self.toggle_play)
+        # -----------------------------------------------------------------------------------
+        # PLAYBACK FRAME --------------
+        # -----------------------------------------------------------------------------------
+
+        playback_options = ctk.CTkLabel(self.left_frame, text='Playback Options', font=underline_font)
+        playback_options.pack(pady=30)
+
+        self.play_button = ctk.CTkButton(self.left_frame, text="Play",
+                                         fg_color=window_con.start_fg_color,
+                                         hover_color=window_con.start_hover_color,
+                                         command=self.toggle_play)
         self.play_button.pack(pady=5)
 
         self.sequence_frame = ctk.CTkFrame(self.left_frame)
         self.sequence_frame.pack(pady=5)
 
-        self.sequence_1_button = ctk.CTkButton(self.sequence_frame, text="Sequence 1")
+        self.sequence_1_button = ctk.CTkButton(self.sequence_frame, text="Sequence 1",
+                                               fg_color=window_con.reset_fg_color,
+                                               hover_color=window_con.reset_hover_color)
+
         self.sequence_1_button.pack(side=ctk.LEFT, padx=5)
 
-        self.sequence_2_button = ctk.CTkButton(self.sequence_frame, text="Sequence 2")
+        self.sequence_2_button = ctk.CTkButton(self.sequence_frame, text="Sequence 2",
+                                               fg_color=window_con.reset_fg_color,
+                                               hover_color=window_con.reset_hover_color)
+
         self.sequence_2_button.pack(side=ctk.LEFT, padx=5)
+
+        # -----------------------------------------------------------------------------------
+        # SPEAKER ARRAY FRAME --------------
+        # -----------------------------------------------------------------------------------
 
         self.canvas_frame = ctk.CTkFrame(self.top_frame)
         self.canvas_frame.pack(side=ctk.LEFT, expand=True)
@@ -80,11 +133,9 @@ class SpeakerControlApp(ctk.CTk):
         self.canvas = ctk.CTkCanvas(self.canvas_frame, width=self.canvas_size, height=self.canvas_size, bg='#1e1e1e')
         self.canvas.pack(expand=True, padx=10, pady=10)
 
-        self.bottom_frame = ctk.CTkFrame(self.main_frame)
-        self.bottom_frame.pack(side=ctk.BOTTOM, fill=ctk.X, padx=10, pady=10)
-
-        self.global_control_frame = ctk.CTkFrame(self.bottom_frame)
-        self.global_control_frame.pack(fill=ctk.X, pady=10)
+        # -----------------------------------------------------------------------------------
+        # MIXER FRAME --------------
+        # -----------------------------------------------------------------------------------
 
         self.knob_label = ctk.CTkLabel(self.global_control_frame, text="Global Gain Level:")
         self.knob_label.pack(side=ctk.LEFT)
@@ -110,11 +161,15 @@ class SpeakerControlApp(ctk.CTk):
 
     def toggle_hardware_connect(self):
         if self.hardware_connected:
-            self.hardware_connect_button.configure(text="Connect Hardware", fg_color="green")
+            self.hardware_connect_button.configure(text="Connect Hardware",
+                                                   fg_color=window_con.start_fg_color,
+                                                   hover_color=window_con.start_hover_color)
             self.hardware_connected = False
             # Placeholder for disconnecting hardware
         else:
-            self.hardware_connect_button.configure(text="Disconnect Hardware", fg_color="red")
+            self.hardware_connect_button.configure(text="Disconnect Hardware",
+                                                   fg_color=window_con.stop_fg_color,
+                                                   hover_color=window_con.stop_hover_color)
             self.hardware_connected = True
             # Placeholder for connecting hardware
 
@@ -133,11 +188,15 @@ class SpeakerControlApp(ctk.CTk):
 
     def toggle_play(self):
         if self.playing:
-            self.play_button.configure(text="Play", fg_color="green")
+            self.play_button.configure(text="Play",
+                                       fg_color=window_con.start_fg_color,
+                                       hover_color=window_con.start_hover_color)
             self.playing = False
             # Placeholder for stopping audio
         else:
-            self.play_button.configure(text="Stop", fg_color="red")
+            self.play_button.configure(text="Stop",
+                                       fg_color=window_con.stop_fg_color,
+                                       hover_color=window_con.stop_hover_color)
             self.playing = True
             # Placeholder for playing audio
 
@@ -200,7 +259,3 @@ class SpeakerControlApp(ctk.CTk):
         # Function to change color based on gain level
         red_value = int(gain * 2.55)
         return f'#{red_value:02x}0000'
-
-if __name__ == "__main__":
-    app = SpeakerControlApp()
-    app.mainloop()

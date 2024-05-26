@@ -6,12 +6,18 @@ def base_path(relative_path):
     return os.path.join(base_dir, relative_path)
 
 # Main App Settings
-window_title = 'Acoustic Phase Array Characterization Experiment'
+window_title = 'Phase Array Characterization Anechoic Chamber Experiment'
 
-window_width = 1300
-window_height = 640
+window_width = 1450
+window_height = 950
 min_window_width = window_width
 min_window_height = window_height
+
+speaker_array_canvas_size = window_height - 350
+speaker_radius = 15
+
+
+
 
 x_pad_main = 2
 y_pad_main = 2
