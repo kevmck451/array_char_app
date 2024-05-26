@@ -70,3 +70,9 @@ class TDT_Circuit:
             time.sleep(time_bw_samples)
 
 
+    # function to play an audio file of particular length
+    # function to alter the channel and gain of the audio being played
+    # functions that cycle through each speaker at a particular gain level
+    # function generates a gain and channel for a particular sequence
+
+

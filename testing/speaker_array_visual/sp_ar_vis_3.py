@@ -1,0 +1,72 @@
+import tkinter as tk
+import math
+
+class SpeakerControlApp(tk.Tk):
+    def __init__(self, num_speakers=33):
+        super().__init__()
+        self.title("Circular Speaker Array Control")
+        self.num_speakers = num_speakers
+        self.canvas_size = 800  # Increased canvas size to better fit controls
+        self.speaker_radius = 10
+        self.speaker_positions = []
+        self.gain_entries = []
+
+        self.create_widgets()
+        self.draw_speaker_array()
+
+    def create_widgets(self):
+        self.canvas = tk.Canvas(self, width=self.canvas_size, height=self.canvas_size, bg='white')
+        self.canvas.pack()
+
+        self.control_frame = tk.Frame(self)
+        self.control_frame.pack()
+
+        self.knob_label = tk.Label(self.control_frame, text="Control Knob (Gain Level):")
+        self.knob_label.pack(side=tk.LEFT)
+
+        self.knob = tk.Scale(self.control_frame, from_=0, to=100, orient=tk.HORIZONTAL)
+        self.knob.pack(side=tk.LEFT)
+        self.knob.set(100)  # Default gain level
+
+        self.update_button = tk.Button(self.control_frame, text="Update", command=self.update_visuals)
+        self.update_button.pack(side=tk.LEFT)
+
+    def draw_speaker_array(self):
+        center_x, center_y = self.canvas_size // 2, self.canvas_size // 2
+        radius = self.canvas_size // 2 - 60  # Adjusted radius to fit text boxes
+
+        for i in range(self.num_speakers):
+            angle = (2 * math.pi / self.num_speakers) * i
+            x = center_x + radius * math.cos(angle)
+            y = center_y + radius * math.sin(angle)
+            self.speaker_positions.append((x, y))
+            self.canvas.create_oval(x - self.speaker_radius, y - self.speaker_radius, x + self.speaker_radius, y + self.speaker_radius, fill='blue', tags=f'speaker_{i}')
+
+            # Position text boxes around the circle
+            entry_x = center_x + (radius + 40) * math.cos(angle)
+            entry_y = center_y + (radius + 40) * math.sin(angle)
+            gain_entry = tk.Entry(self, width=5)
+            gain_entry.insert(0, "1.0")  # Default gain level
+            gain_entry.place(x=entry_x, y=entry_y, anchor=tk.CENTER)
+            self.gain_entries.append(gain_entry)
+
+            # Add labels to text boxes
+            label = tk.Label(self, text=f"Speaker {i+1}")
+            label.place(x=entry_x, y=entry_y + 20, anchor=tk.CENTER)
+
+    def update_visuals(self):
+        for i, (x, y) in enumerate(self.speaker_positions):
+            try:
+                gain = float(self.gain_entries[i].get())
+                gain = max(0.0, min(gain, 1.0))  # Ensure gain is between 0 and 1
+                self.canvas.itemconfig(f'speaker_{i}', fill=self.get_color_based_on_gain(gain))
+            except ValueError:
+                pass  # Ignore invalid float conversion
+
+    def get_color_based_on_gain(self, gain):
+        # Example function to change color based on gain level
+        return f'#{int(gain * 255):02x}00{int((1 - gain) * 255):02x}'
+
+if __name__ == "__main__":
+    app = SpeakerControlApp()
+    app.mainloop()
