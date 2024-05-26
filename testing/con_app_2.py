@@ -24,6 +24,7 @@ class SpeakerControlApp(ctk.CTk):
             "/path/to/sound3.wav"
         ]
         self.playing = False
+        self.hardware_connected = False
         self.selected_file = StringVar()
 
         self.geometry(f"{self.window_width}x{self.window_height}")
@@ -40,6 +41,9 @@ class SpeakerControlApp(ctk.CTk):
 
         self.left_frame = ctk.CTkFrame(self.top_frame)
         self.left_frame.pack(side=ctk.LEFT, fill=ctk.Y, padx=10, pady=10)
+
+        self.hardware_connect_button = ctk.CTkButton(self.left_frame, text="Connect Hardware", fg_color="green", command=self.toggle_hardware_connect)
+        self.hardware_connect_button.pack(pady=5)
 
         self.file_listbox_frame = ctk.CTkFrame(self.left_frame)
         self.file_listbox_frame.pack(fill=ctk.Y, expand=False, pady=(0, 5))
@@ -99,6 +103,16 @@ class SpeakerControlApp(ctk.CTk):
 
         self.slider_frame = ctk.CTkFrame(self.bottom_frame)
         self.slider_frame.pack(fill=ctk.X, padx=5, pady=5)  # Ensure the sliders take up the full width
+
+    def toggle_hardware_connect(self):
+        if self.hardware_connected:
+            self.hardware_connect_button.configure(text="Connect Hardware", fg_color="green")
+            self.hardware_connected = False
+            # Placeholder for disconnecting hardware
+        else:
+            self.hardware_connect_button.configure(text="Disconnect Hardware", fg_color="red")
+            self.hardware_connected = True
+            # Placeholder for connecting hardware
 
     def load_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("WAV files", "*.wav")])
