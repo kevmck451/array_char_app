@@ -1,9 +1,10 @@
 # Phase Array Characterization Experiments in Anechoic Chamber 
 
+![Anechoic Chamber](media/anechoic_chamber_1.jpg)
 
 ## Overview
 
-
+![Anechoic Chamber](media/array_char_app_controller.jpg)
 
 
 ## Installation and Setup
@@ -127,7 +128,7 @@
 
 
 
-
+![Anechoic Chamber](media/participant_example_1.jpg)
 
 
 
