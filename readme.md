@@ -1,4 +1,4 @@
-# Phase Array Characterization Experiments in Anechoic Chamber 
+# Phase Array Characterization Experiments in UM Anechoic Chamber 
 
 ![Anechoic Chamber](media/anechoic_chamber_1.jpg)
 

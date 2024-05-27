@@ -1,7 +1,7 @@
 
 
 
-# Window_Control Structure
+# Controller Structure
 
 
 
