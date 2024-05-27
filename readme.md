@@ -4,7 +4,7 @@
 
 ## Overview
 
-![Anechoic Chamber](media/array_char_app_controller.jpg)
+![Anechoic Chamber](media/array_char_app_controller.jpeg)
 
 
 ## Installation and Setup
