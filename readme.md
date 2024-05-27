@@ -2,7 +2,7 @@
 
 ![Anechoic Chamber](media/anechoic_chamber_1.jpg)
 
-## Overview
+## Controller App Overview
 
 ![Anechoic Chamber](media/array_char_app1.jpeg)
 
