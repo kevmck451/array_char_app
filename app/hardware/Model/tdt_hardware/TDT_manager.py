@@ -94,12 +94,12 @@ if __name__ == '__main__':
     white_noise = Audio_Abstract(filepath=white_noise_filepath)
 
     hardware = TDT_Circuit()
-    # hardware.play_audio_on_computer(white_noise)
+    hardware.play_audio_on_computer(white_noise)
     # hardware.connect_hardware()
     # hardware.play_audio_speaker_array(white_noise)
     # hardware.stop_audio_speaker_array()
 
-
+    '''
     # play sound
     hardware.play_audio_speaker_array(white_noise)
     # change gain values
@@ -109,3 +109,4 @@ if __name__ == '__main__':
         time.sleep(3)
 
     hardware.stop_audio_speaker_array()
+    '''
