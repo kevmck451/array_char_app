@@ -4,7 +4,7 @@
 
 ## Controller App Overview
 
-![Anechoic Chamber](media/array_char_app1.jpeg)
+![Anechoic Chamber](media/array_char_app2.jpeg)
 
 
 ## Installation and Setup
