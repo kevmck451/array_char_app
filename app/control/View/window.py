@@ -1,41 +1,57 @@
 import app.control.View.window_con as window_con
+from app.control.Controller.events import Event
+from app.docs.resources import base_path
 
 import customtkinter as ctk
-import tkinter.font as tkFont
 import math
 from tkinter import filedialog, StringVar, Listbox, Scrollbar, END, SINGLE
 from pathlib import Path
+import tkinter as tk
 
 
 class SpeakerControlApp(ctk.CTk):
-    def __init__(self, num_speakers=36):
+    def __init__(self, event_handler):
         super().__init__()
         ctk.set_appearance_mode("dark")  # Enable dark mode
         ctk.set_default_color_theme("dark-blue")  # Optional: set a color theme
 
         self.title(window_con.window_title)
-        self.num_speakers = num_speakers
+        self.event_handler = event_handler
+
         self.window_width = window_con.window_width
         self.window_height = window_con.window_height
+
+        # Get the screen dimension
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        center_x = int((screen_width / 2) - (window_con.window_width / 2))
+        center_y = int((screen_height / 2) - (window_con.window_height / 2))
+        self.geometry(f'{window_con.window_width}x{window_con.window_height}+{center_x}+{center_y}')
+        self.minsize(window_con.min_window_width, window_con.min_window_height)
+
+        self.num_speakers = 36
         self.canvas_size = window_con.speaker_array_canvas_size
         self.speaker_radius = window_con.speaker_radius
         self.speaker_positions = []
         self.gain_sliders = []
         self.slider_value_labels = []
-        self.file_list = [
-            "/path/to/sound1.wav",
-            "/path/to/sound2.wav",
-            "/path/to/sound3.wav"
-        ]
         self.playing = False
-        self.hardware_connected = False
+        self.hardware_state = 0
         self.selected_file = StringVar()
         self.real_time_update = False
+        self.load_box_limit = 8
+        self.current_file_selection = None
+
+        audio_filepath = base_path('audio_files')
+        self.file_list = [x for x in Path(audio_filepath).iterdir()]
 
         self.geometry(f"{self.window_width}x{self.window_height}")
         self.create_widgets()
         self.draw_speaker_array()
         self.draw_mixer()
+
+        # Ending Procedures
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def create_widgets(self):
         self.main_frame = ctk.CTkFrame(self)
@@ -63,7 +79,7 @@ class SpeakerControlApp(ctk.CTk):
         self.hardware_connect_button = ctk.CTkButton(self.left_frame, text="Connect",
                                                      fg_color=window_con.start_fg_color,
                                                      hover_color=window_con.start_hover_color,
-                                                     command=self.toggle_hardware_connect)
+                                                     command=lambda: self.event_handler(Event.CONNECT_HARDWARE))
         self.hardware_connect_button.pack()
 
         # -----------------------------------------------------------------------------------
@@ -76,7 +92,7 @@ class SpeakerControlApp(ctk.CTk):
         self.file_listbox_frame = ctk.CTkFrame(self.left_frame)
         self.file_listbox_frame.pack(fill=ctk.Y, expand=False, pady=(0, 5))
 
-        self.file_listbox = Listbox(self.file_listbox_frame, selectmode=SINGLE, height=6)
+        self.file_listbox = Listbox(self.file_listbox_frame, selectmode=SINGLE, height=self.load_box_limit)
         self.file_listbox.pack(side=ctk.LEFT, fill=ctk.BOTH, expand=True)
         self.scrollbar = Scrollbar(self.file_listbox_frame, orient="vertical")
         self.scrollbar.config(command=self.file_listbox.yview)
@@ -85,6 +101,9 @@ class SpeakerControlApp(ctk.CTk):
 
         for file in self.file_list:
             self.file_listbox.insert(END, Path(file).stem)
+
+        # Bind the selection event
+        self.file_listbox.bind("<<ListboxSelect>>", self.on_listbox_select)
 
         self.load_file_button = ctk.CTkButton(self.left_frame, text="Load File", command=self.load_file)
         self.load_file_button.pack(pady=5)
@@ -99,7 +118,7 @@ class SpeakerControlApp(ctk.CTk):
         self.play_button = ctk.CTkButton(self.left_frame, text="Play",
                                          fg_color=window_con.start_fg_color,
                                          hover_color=window_con.start_hover_color,
-                                         command=self.toggle_play)
+                                         command = self.play_audio)
         self.play_button.pack(pady=5)
 
         self.sequence_frame = ctk.CTkFrame(self.left_frame)
@@ -153,19 +172,28 @@ class SpeakerControlApp(ctk.CTk):
         self.slider_frame = ctk.CTkFrame(self.bottom_frame)
         self.slider_frame.pack(fill=ctk.X, padx=5, pady=5)  # Ensure the sliders take up the full width
 
+    def on_listbox_select(self, event):
+        selected_indices = self.file_listbox.curselection()
+        if selected_indices:
+            selected_index = selected_indices[0]
+            self.current_file_selection = self.file_listbox.get(selected_index)
+
     def toggle_hardware_connect(self):
-        if self.hardware_connected:
-            self.hardware_connect_button.configure(text="Connect Hardware",
-                                                   fg_color=window_con.start_fg_color,
-                                                   hover_color=window_con.start_hover_color)
-            self.hardware_connected = False
-            # Placeholder for disconnecting hardware
-        else:
+        if self.hardware_state == 0:
+            self.hardware_connect_button.configure(text="Attempting...",
+                                                   fg_color=window_con.pause_fg_color,
+                                                   hover_color=window_con.pause_hover_color,
+                                                   command=lambda: self.event_handler(Event.DISCONNECT_HARDWARE))
+        elif self.hardware_state == 1:
             self.hardware_connect_button.configure(text="Disconnect Hardware",
                                                    fg_color=window_con.stop_fg_color,
-                                                   hover_color=window_con.stop_hover_color)
-            self.hardware_connected = True
-            # Placeholder for connecting hardware
+                                                   hover_color=window_con.stop_hover_color,
+                                                   command=lambda: self.event_handler(Event.DISCONNECT_HARDWARE))
+        else:
+            self.hardware_connect_button.configure(text="Connect Hardware",
+                                                   fg_color=window_con.start_fg_color,
+                                                   hover_color=window_con.start_hover_color,
+                                                   command=lambda: self.event_handler(Event.CONNECT_HARDWARE))
 
     def toggle_real_time(self):
         self.real_time_update = not self.real_time_update
@@ -184,13 +212,15 @@ class SpeakerControlApp(ctk.CTk):
         if self.playing:
             self.play_button.configure(text="Play",
                                        fg_color=window_con.start_fg_color,
-                                       hover_color=window_con.start_hover_color)
+                                       hover_color=window_con.start_hover_color,
+                                       command=self.play_audio)
             self.playing = False
             # Placeholder for stopping audio
         else:
             self.play_button.configure(text="Stop",
                                        fg_color=window_con.stop_fg_color,
-                                       hover_color=window_con.stop_hover_color)
+                                       hover_color=window_con.stop_hover_color,
+                                       command=lambda: self.event_handler(Event.STOP_AUDIO))
             self.playing = True
             # Placeholder for playing audio
 
@@ -203,7 +233,7 @@ class SpeakerControlApp(ctk.CTk):
             x = center_x + radius * math.cos(angle)
             y = center_y + radius * math.sin(angle)
             self.speaker_positions.append((x, y))
-            color = self.get_color_based_on_gain(100)  # Default color based on gain 100
+            color = self.get_color_based_on_gain(0)  # Default color based on gain 100
             self.canvas.create_oval(x - self.speaker_radius, y - self.speaker_radius, x + self.speaker_radius, y + self.speaker_radius, fill=color, tags=f'speaker_{i}')
             self.canvas.create_text(x, y, text=str(i + 1), fill='white', tags=f'label_{i}')
 
@@ -219,10 +249,10 @@ class SpeakerControlApp(ctk.CTk):
             label.pack()
 
             gain_slider = ctk.CTkSlider(slider_frame, from_=0, to=100, orientation=ctk.VERTICAL, height=100, command=lambda value, index=i: self.update_slider_value(value, index))
-            gain_slider.set(100)  # Default gain level
+            gain_slider.set(0)  # Default gain level
             gain_slider.pack()
 
-            slider_value_label = ctk.CTkLabel(slider_frame, text="100")  # Default value label
+            slider_value_label = ctk.CTkLabel(slider_frame, text="0")  # Default value label
             slider_value_label.pack()
 
             self.gain_sliders.append(gain_slider)
@@ -253,3 +283,34 @@ class SpeakerControlApp(ctk.CTk):
         # Function to change color based on gain level
         red_value = int(gain * 2.55)
         return f'#{red_value:02x}0000'
+
+    def play_audio(self):
+        if self.current_file_selection is not None:
+            self.event_handler(Event.PLAY_AUDIO)
+        else:
+            self.warning_popup_general('Select Audio from List')
+            # print('Select Audio from List')
+
+    def warning_popup_general(self, message):
+        message_popup = tk.Toplevel(self)
+        message_popup.title("Message")
+        window_width = 400
+        window_height = 150
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        center_x = int((screen_width / 2) - (window_width / 2))
+        center_y = int((screen_height / 2) - (window_height / 2))
+        message_popup.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+
+        # Display the message
+        tk.Label(message_popup, text=message, font=("default_font", 16)).pack(pady=20)
+
+        # OK button to close the pop-up
+        ok_button = tk.Button(message_popup, text="OK", background="#D3D3D3", padx=10, pady=10,
+                              command=message_popup.destroy)
+        ok_button.pack(pady=10)
+
+    def on_close(self):
+        # print('x button pressed')
+        self.event_handler(Event.ON_CLOSE)
+        self.destroy()

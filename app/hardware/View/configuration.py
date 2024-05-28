@@ -51,8 +51,8 @@ console_font_style = ("default_font", 12)
 # Hardware Frame Settings
 connection_status_TDT = 'TDT Hardware: Not Connected'
 connection_status_TDT_C = 'TDT Hardware: Connected'
-connection_status_VR = 'Controller: Not Connected'
-connection_status_VR_C = 'Controller: Connected'
+connection_status_server = 'Controller: Not Connected'
+connection_status_server_C = 'Controller: Connected'
 not_connected_color = '#BD2E2E'
 connected_color = '#2B881A'
 

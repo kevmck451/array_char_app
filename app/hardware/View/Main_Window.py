@@ -46,11 +46,12 @@ class Main_Frame(ctk.CTkFrame):
         super().__init__(parent)
         self.event_handler = event_handler
 
-        self.vr_button_state = 0
+        self.server_button_state = 0
+        self.server_running = False
         self.tdt_button_state = 0
 
-        self.vr_hardware_id = None
-        self.vr_connection = bool
+        self.server_id = None
+        self.server_connection = bool
 
         # Top Frame
         top_frame = ctk.CTkFrame(self)
@@ -79,33 +80,39 @@ class Main_Frame(ctk.CTkFrame):
         self.TDT_button.grid(row=0, column=1, padx=configuration.x_pad_2, pady=configuration.y_pad_2, sticky='nsew')
 
         # VR Connection Status
-        self.vr_status = ctk.CTkLabel(frame, text=configuration.connection_status_VR, text_color=configuration.not_connected_color,
-                                      font=(configuration.main_font_style, configuration.main_font_size))
-        self.vr_status.grid(row=1, column=0, padx=configuration.x_pad_2, pady=configuration.y_pad_2, sticky='nsew')
+        self.server_status = ctk.CTkLabel(frame, text=configuration.connection_status_server, text_color=configuration.not_connected_color,
+                                          font=(configuration.main_font_style, configuration.main_font_size))
+        self.server_status.grid(row=1, column=0, padx=configuration.x_pad_2, pady=configuration.y_pad_2, sticky='nsew')
 
         # VR Reset Button
-        self.VR_button = ctk.CTkButton(frame, text='Connect',
-                                       font=(configuration.main_font_style, configuration.main_font_size),
-                                       fg_color=configuration.button_fg_color, command=lambda: self.event_handler(Event.VR_CONNECT))
-        self.VR_button.grid(row=1, column=1, padx=configuration.x_pad_2, pady=configuration.y_pad_2, sticky='nsew')
+        self.server_button = ctk.CTkButton(frame, text='Start Server',
+                                           font=(configuration.main_font_style, configuration.main_font_size),
+                                           fg_color=configuration.button_fg_color, command=lambda: self.event_handler(Event.START_HARDWARE_SERVER))
+        self.server_button.grid(row=1, column=1, padx=configuration.x_pad_2, pady=configuration.y_pad_2, sticky='nsew')
 
     # BUTTON TOGGLE STATES ------------------------
 
-    def toggle_vr_button(self):
-        if self.vr_button_state == 0:
-            self.vr_status.configure(text=configuration.connection_status_VR_C,
-                                     text_color=configuration.connected_color)
-            self.VR_button.configure(text='Disconnect',
-                                     fg_color=configuration.stop_fg_color, hover_color=configuration.stop_hover_color,
-                                     command=lambda: self.event_handler(Event.VR_DISCONNECT))
-            self.vr_button_state += 1
+    def toggle_server_button(self):
+        if self.server_button_state == 0:
+            self.server_button.configure(text='End Server',
+                                         fg_color=configuration.stop_fg_color, hover_color=configuration.stop_hover_color,
+                                         command=lambda: self.event_handler(Event.SERVER_DISCONNECT))
+            self.server_button_state += 1
         else:
-            self.vr_status.configure(text=configuration.connection_status_VR,
-                                     text_color=configuration.not_connected_color)
-            self.VR_button.configure(text='Connect',
-                                     fg_color=configuration.button_fg_color, hover_color=configuration.button_hover_color,
-                                     command=lambda: self.event_handler(Event.VR_CONNECT))
-            self.vr_button_state = 0
+            self.server_button.configure(text='Start Server',
+                                         fg_color=configuration.button_fg_color, hover_color=configuration.button_hover_color,
+                                         command=lambda: self.event_handler(Event.START_HARDWARE_SERVER))
+            self.server_button_state = 0
+
+
+    def change_server_status(self):
+        if self.server_running:
+            self.server_status.configure(text=configuration.connection_status_server_C,
+                                         text_color=configuration.connected_color)
+
+        else:
+            self.server_status.configure(text=configuration.connection_status_server,
+                                         text_color=configuration.not_connected_color)
 
     def toggle_tdt_button(self):
         if self.tdt_button_state == 0:
@@ -126,21 +133,21 @@ class Main_Frame(ctk.CTkFrame):
 
     # VR HARDWARE VIEWS
     def vr_hardware_connection_status(self):
-        self.event_handler(Event.VR_CONNECTION)
+        self.event_handler(Event.START_HARDWARE_SERVER)
 
-        if self.vr_connection:
-            self.vr_button_state = 1
-            self.toggle_vr_button()
+        if self.server_connection:
+            self.server_button_state = 1
+            self.toggle_server_button()
         else:
-            self.vr_button_state = 0
-            self.toggle_vr_button()
+            self.server_button_state = 0
+            self.toggle_server_button()
 
-        self.vr_hardware_id = self.after(1000, self.vr_hardware_connection_status)
+        self.server_id = self.after(1000, self.vr_hardware_connection_status)
 
     def stop_vr_hardware_connection_status(self):
-        if self.vr_hardware_id:
-            self.after_cancel(self.vr_hardware_id)
-            self.vr_hardware_id = None
+        if self.server_id:
+            self.after_cancel(self.server_id)
+            self.server_id = None
 
 
     # POP UP WINDOWS -------------------------------------------
