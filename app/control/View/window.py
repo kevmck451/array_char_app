@@ -158,20 +158,60 @@ class SpeakerControlApp(ctk.CTk):
         self.knob.pack(side=ctk.LEFT, padx=5)
         self.knob.set(0)  # Default gain level
 
-        self.set_all_zero_button = ctk.CTkButton(self.global_control_frame, text="Set All to 0", command=lambda: self.set_all_gains(0))
+        self.set_all_zero_button = ctk.CTkButton(self.global_control_frame, text="Set All to 0", width=10, command=lambda: self.set_all_gains(0))
         self.set_all_zero_button.pack(side=ctk.LEFT, padx=5)
 
-        self.set_all_max_button = ctk.CTkButton(self.global_control_frame, text="Set All to 100", command=lambda: self.set_all_gains(100))
+        self.set_all_max_button = ctk.CTkButton(self.global_control_frame, text="Set All to 100", width=10, command=lambda: self.set_all_gains(100))
         self.set_all_max_button.pack(side=ctk.LEFT, padx=5)
 
-        self.update_button = ctk.CTkButton(self.global_control_frame, text="Update", command=self.update_visuals)
+        self.update_button = ctk.CTkButton(self.global_control_frame, text="Update", width=10, command=self.update_visuals)
         self.update_button.pack(side=ctk.LEFT, padx=5)
 
-        self.real_time_button = ctk.CTkButton(self.global_control_frame, text="Real Time", fg_color="gray", command=self.toggle_real_time)
+        self.real_time_button = ctk.CTkButton(self.global_control_frame, text="Real Time", width=10, fg_color="gray", command=self.toggle_real_time)
         self.real_time_button.pack(side=ctk.LEFT, padx=5)
 
+        self.angle_knob_label = ctk.CTkLabel(self.global_control_frame, text="Speaker Angle:")
+        self.angle_knob_label.pack(side=ctk.LEFT)
+
+        self.angle_knob = ctk.CTkSlider(self.global_control_frame, from_=-180, to=180, orientation=ctk.HORIZONTAL, command=self.update_angle_label)
+        self.angle_knob.pack(side=ctk.LEFT, padx=5)
+        self.angle_knob.set(0)  # Default gain level
+
+        self.angle_knob_value_label = ctk.CTkLabel(self.global_control_frame, text="0")  # Default value label
+        self.angle_knob_value_label.pack(side=ctk.LEFT, padx=5)
+
+        button_width = 0
+        button_side = ctk.RIGHT
+
+        self.ninety_degree_button = ctk.CTkButton(self.global_control_frame, text="90", width=button_width, command=lambda: self.update_angle_label(90))
+        self.ninety_degree_button.pack(side=button_side)
+
+        self.sixty_degree_button = ctk.CTkButton(self.global_control_frame, text="60", width=button_width, command=lambda: self.update_angle_label(60))
+        self.sixty_degree_button.pack(side=button_side)
+
+        self.fortyfive_degree_button = ctk.CTkButton(self.global_control_frame, text="45", width=button_width, command=lambda: self.update_angle_label(45))
+        self.fortyfive_degree_button.pack(side=button_side)
+
+        self.thirty_degree_button = ctk.CTkButton(self.global_control_frame, text="30", width=button_width, command=lambda: self.update_angle_label(30))
+        self.thirty_degree_button.pack(side=button_side)
+
+        self.zero_degree_button = ctk.CTkButton(self.global_control_frame, text="0", width=button_width, command=lambda: self.update_angle_label(0))
+        self.zero_degree_button.pack(side=button_side)
+
+        self.neg_thirty_degree_button = ctk.CTkButton(self.global_control_frame, text="-30", width=button_width, command=lambda: self.update_angle_label(-30))
+        self.neg_thirty_degree_button.pack(side=button_side)
+
+        self.neg_fortyfive_degree_button = ctk.CTkButton(self.global_control_frame, text="-45", width=button_width, command=lambda: self.update_angle_label(-45))
+        self.neg_fortyfive_degree_button.pack(side=button_side)
+
+        self.neg_sixty_degree_button = ctk.CTkButton(self.global_control_frame, text="-60", width=button_width, command=lambda: self.update_angle_label(-60))
+        self.neg_sixty_degree_button.pack(side=button_side)
+
+        self.neg_ninety_degree_button = ctk.CTkButton(self.global_control_frame, text="-90", width=button_width, command=lambda: self.update_angle_label(-90))
+        self.neg_ninety_degree_button.pack(side=button_side)
+
         self.slider_frame = ctk.CTkFrame(self.bottom_frame)
-        self.slider_frame.pack(fill=ctk.X, padx=5, pady=5)  # Ensure the sliders take up the full width
+        self.slider_frame.pack(fill=ctk.X, padx=5, pady=5)
 
     def on_listbox_select(self, event):
         selected_indices = self.file_listbox.curselection()
@@ -258,6 +298,38 @@ class SpeakerControlApp(ctk.CTk):
 
             self.gain_sliders.append(gain_slider)
             self.slider_value_labels.append(slider_value_label)
+
+    def update_angle_label(self, value):
+        # Update the angle label
+        self.angle_knob_value_label.configure(text=f"{int(float(value))}")
+
+        # Calculate the angular resolution for each speaker
+        angular_resolution = 360 / self.num_speakers
+
+        # Normalize the angle to be within 0 to 360 degrees
+        normalized_angle = (float(value) + 360) % 360
+
+        # Calculate the speaker index based on the normalized angle
+        speaker_index = int((normalized_angle + angular_resolution / 2) // angular_resolution) % self.num_speakers
+
+        # Update the gain sliders and labels
+        for i, slider in enumerate(self.gain_sliders):
+            if i == speaker_index:
+                gain = 100
+            else:
+                gain = 0
+            slider.set(int(gain))
+
+        for i, label in enumerate(self.slider_value_labels):
+            if i == speaker_index:
+                gain = 100
+            else:
+                gain = 0
+            label.configure(text=str(int(gain)))
+
+        # If real-time update is enabled, update the visuals
+        if self.real_time_update:
+            self.update_visuals()
 
     def set_global_gain(self, value):
         for slider in self.gain_sliders:
