@@ -1,11 +1,11 @@
-
 from scipy.signal import resample
 import matplotlib.pyplot as plt
 from pathlib import Path
 import soundfile as sf
 import numpy as np
-# import librosa
+import librosa
 
+import wave
 
 
 class Audio_Abstract:
@@ -27,19 +27,21 @@ class Audio_Abstract:
             # with wave.open(str(self.path), 'rb') as wav_file:
             #     self.num_channels = wav_file.getnchannels()
             info = sf.info(self.path)
-            self.num_channels = info.channels
-            self.load_data(self.path)
+            self.load_data(self.path, info.channels)
+
+            if self.num_channels != info.channels:
+                self.data = self.data[:self.num_channels]
+                self.data = np.squeeze(self.data)
 
         # Assuming your audio data is in a variable called 'audio_data'
         if not np.isfinite(self.data).all():
             self.data[np.isnan(self.data)] = 0
             self.data[np.isinf(self.data)] = 0
 
-        max_value = np.max(self.data).round(5)
-        if max_value == 0:
-            print(self.path)
-            raise Exception('Max Value is Zero')
-
+        # max_value = np.max(self.data).round(5)
+        # if max_value == 0:
+        #     print(self.path)
+        #     raise Exception('Max Value is Zero')
 
     def __str__(self):
         return f'---------Audio Object---------\n' \
@@ -54,31 +56,38 @@ class Audio_Abstract:
                f'data: {self.data}'
 
     # Function that loads data from filepath
-    def load_data(self, filepath):
-        if self.num_channels > 1:
+    def load_data(self, filepath, num_ch):
+        if num_ch > 1:
             self.data, samplerate = sf.read(str(filepath), dtype='float32')
             if samplerate != self.sample_rate:
                 # self.data = librosa.resample(y=self.data, orig_sr=samplerate, target_sr=self.sample_rate)
-                self.data = resample(self.data, self.sample_rate)
-            try:
-                self.data = self.data.reshape(-1, self.num_channels)  # Reshape to match the number of channels
-            except ValueError:
-                # print("The audio data cannot be reshaped to match the number of channels.")
-                # print(f'Path: {self.path}')
-                # print(f'Num Channels: {self.num_channels}')
-                return
+                num_samples = int((self.sample_rate / samplerate) * len(self.data))
+                self.data = resample(self.data, num_samples)
+
+            # try:
+            #     self.data = self.data.reshape(-1, self.num_channels)  # Reshape to match the number of channels
+            # except ValueError:
+            #     # print("The audio data cannot be reshaped to match the number of channels.")
+            #     # print(f'Path: {self.path}')
+            #     # print(f'Num Channels: {self.num_channels}')
+            #     return
+
 
             # Convert the interleaved data to deinterleaved format
             self.data = np.transpose(self.data.copy())  # Rows are channels / columns are data
+            # print(f'Data Shape: {self.data.shape} / Sample Rate: {self.sample_rate}')
             self.sample_length = round((self.data.shape[1] / self.sample_rate), 2)
             self.num_samples = len(self.data[1])
 
         else:
             self.data, samplerate = sf.read(str(filepath), dtype='float32')
-            # if samplerate != self.sample_rate:
-            #     self.data = librosa.resample(y=self.data, orig_sr=samplerate, target_sr=self.sample_rate)
+            # average = np.mean(audio.data)
+            # self.data = self.data - average
+            if samplerate != self.sample_rate:
+                self.data = librosa.resample(y=self.data, orig_sr=samplerate, target_sr=self.sample_rate)
             self.sample_length = round((len(self.data) / self.sample_rate), 2)
             self.num_samples = len(self.data)
+
 
     # Function that returns stats from the audio file
     def stats(self):
@@ -140,11 +149,15 @@ class Audio_Abstract:
         fig.tight_layout(pad=1)
 
         save = kwargs.get('save', False)
+        display = kwargs.get('display', False)
+        ret = kwargs.get('ret', False)
         save_path = kwargs.get('save_path', str(self.path))
         if save:
             plt.savefig(f'{save_path}/{self.name}.png')
-        else:
+        if display:
             plt.show()
+        if ret:
+            return fig
 
 
     def crop(self, time):

@@ -2,12 +2,12 @@
 from app.control.Controller.events import Event
 from app.control.Controller.client import Sender_Client
 from app.control.Controller.audio_abstract import Audio_Abstract
-import app.control.Controller.audio as comp_audio
+import app.control.Controller.audio_player as comp_audio
 from app.docs.resources import base_path
 
 
 import threading
-
+from pathlib import Path
 
 class Controller:
     def __init__(self):
@@ -46,13 +46,24 @@ class Controller:
         elif event == Event.PLAY_AUDIO:
             print('playing audio')
             self.gui.toggle_play()
-            if self.hardware_connected:
-                # use TDT hardware
-                pass
+
+            # Find the matching file path or None if not found
+            filepath = next((path for path in self.gui.file_list if Path(path).stem == self.gui.current_file_selection), None)
+
+            if filepath:
+                audio = Audio_Abstract(filepath=filepath, num_channels=1)
+
+                if self.hardware_connected:
+                    # use TDT hardware
+                    pass
+                else:
+                    gain = self.gui.knob.get()
+                    comp_audio.play_audio_on_computer(audio, gain=gain)
+
             else:
-                filepath = base_path(f'audio_files/{self.gui.current_file_selection}.wav')
-                audio = Audio_Abstract(filepath=filepath)
-                comp_audio.play_audio_on_computer(audio)
+                self.gui.warning_popup_general('Error with filepath')
+
+
 
 
         elif event == Event.STOP_AUDIO:
@@ -77,7 +88,6 @@ class Controller:
 
     def connected(self):
         self.hardware_connected = True
-
 
 
 

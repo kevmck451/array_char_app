@@ -4,7 +4,7 @@ from app.docs.resources import base_path
 
 import customtkinter as ctk
 import math
-from tkinter import filedialog, StringVar, Listbox, Scrollbar, END, SINGLE
+from tkinter import filedialog, StringVar, Listbox, Scrollbar, END, SINGLE, EXTENDED
 from pathlib import Path
 import tkinter as tk
 
@@ -39,7 +39,7 @@ class SpeakerControlApp(ctk.CTk):
         self.hardware_state = 0
         self.selected_file = StringVar()
         self.real_time_update = False
-        self.load_box_limit = 8
+        self.load_box_limit = 10
         self.current_file_selection = None
 
         audio_filepath = base_path('audio_files')
@@ -72,9 +72,10 @@ class SpeakerControlApp(ctk.CTk):
         # -----------------------------------------------------------------------------------
         # HARDWARE CONNECTION FRAME --------------
         # -----------------------------------------------------------------------------------
+        left_frame_padding = 25
         underline_font = ctk.CTkFont(family="default_font", size=30, underline=True)
         hardware_connect = ctk.CTkLabel(self.left_frame, text='Hardware Connection', font=underline_font)
-        hardware_connect.pack(pady=30)
+        hardware_connect.pack(pady=left_frame_padding)
 
         self.hardware_connect_button = ctk.CTkButton(self.left_frame, text="Connect",
                                                      fg_color=window_con.start_fg_color,
@@ -87,7 +88,7 @@ class SpeakerControlApp(ctk.CTk):
         # -----------------------------------------------------------------------------------
 
         media_select_title = ctk.CTkLabel(self.left_frame, text='Media Select Options', font=underline_font)
-        media_select_title.pack(pady=30)
+        media_select_title.pack(pady=left_frame_padding)
 
         self.file_listbox_frame = ctk.CTkFrame(self.left_frame)
         self.file_listbox_frame.pack(fill=ctk.Y, expand=False, pady=(0, 5))
@@ -113,7 +114,7 @@ class SpeakerControlApp(ctk.CTk):
         # -----------------------------------------------------------------------------------
 
         playback_options = ctk.CTkLabel(self.left_frame, text='Playback Options', font=underline_font)
-        playback_options.pack(pady=30)
+        playback_options.pack(pady=left_frame_padding)
 
         self.play_button = ctk.CTkButton(self.left_frame, text="Play",
                                          fg_color=window_con.start_fg_color,
@@ -155,7 +156,7 @@ class SpeakerControlApp(ctk.CTk):
 
         self.knob = ctk.CTkSlider(self.global_control_frame, from_=0, to=100, orientation=ctk.HORIZONTAL, command=self.set_global_gain)
         self.knob.pack(side=ctk.LEFT, padx=5)
-        self.knob.set(100)  # Default gain level
+        self.knob.set(0)  # Default gain level
 
         self.set_all_zero_button = ctk.CTkButton(self.global_control_frame, text="Set All to 0", command=lambda: self.set_all_gains(0))
         self.set_all_zero_button.pack(side=ctk.LEFT, padx=5)
