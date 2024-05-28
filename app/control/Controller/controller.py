@@ -1,9 +1,6 @@
 
 
 
-from app.control.Model.tdt_hardware.TDT_manager import TDT_Circuit
-from app.control.Model.vr_hardware.VR_manager import VR_Headset_Hardware
-from app.control.Model.data_manager import circuit_data
 from app.control.Controller.experiment_state import Experiment
 from app.control.Controller.utilities import CSVFile_Experiment
 from app.control.Controller.utilities import CSVFile_Settings
@@ -27,8 +24,6 @@ class Controller:
         self.channel_list = list
         self.loaded_experiment_name = str
         self.experiment_loaded = False
-        self.tdt_hardware = TDT_Circuit()
-        self.vr_hardware = VR_Headset_Hardware()
         self.experiment = Experiment()
         self.warmup = Experiment()
         self.stop_flag_raised = False
@@ -47,14 +42,6 @@ class Controller:
             if self.app_state == State.IDLE:
                 self.app_state = State.TDT_INITIALIZING
                 self.start_tdt_hardware()
-
-        # Disconnect from TDT Hardware
-        elif event == Event.TDT_DISCONNECT:
-            if self.app_state == State.IDLE:
-                self.app_state = State.TDT_INITIALIZING
-                self.tdt_hardware.disconnect_hardware()
-                self.gui.Main_Frame.toggle_tdt_button()
-                self.app_state = State.IDLE
 
         # Load Experiment: FINISHED
         elif event == Event.LOAD_EXPERIMENT:

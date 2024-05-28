@@ -1,7 +1,5 @@
 import app.control.View.window_con as window_con
 
-
-
 import customtkinter as ctk
 import tkinter.font as tkFont
 import math
@@ -9,11 +7,8 @@ from tkinter import filedialog, StringVar, Listbox, Scrollbar, END, SINGLE
 from pathlib import Path
 
 
-
-
-
 class SpeakerControlApp(ctk.CTk):
-    def __init__(self, num_speakers=33):
+    def __init__(self, num_speakers=36):
         super().__init__()
         ctk.set_appearance_mode("dark")  # Enable dark mode
         ctk.set_default_color_theme("dark-blue")  # Optional: set a color theme
@@ -57,7 +52,6 @@ class SpeakerControlApp(ctk.CTk):
 
         self.global_control_frame = ctk.CTkFrame(self.bottom_frame)
         self.global_control_frame.pack(fill=ctk.X, pady=10)
-
 
         # -----------------------------------------------------------------------------------
         # HARDWARE CONNECTION FRAME --------------

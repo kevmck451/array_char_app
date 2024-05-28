@@ -1,5 +1,6 @@
 
 import sounddevice as sd
+import numpy as np
 import time
 import os
 
@@ -13,8 +14,13 @@ class TDT_Circuit:
         self.circuit_state = False
         self.initialize = False
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
-        new_path = os.path.join(current_script_dir, 'tdt_circuit.rcx')
+        new_path = os.path.join(current_script_dir, 'tdt_circuit_2.rcx')
         self.RPvds_circuit_filepath = new_path
+
+        self.num_speakers = 36
+
+        # instantiate the gain values in a list of num_speakers
+        self.gain_values = np.zeros(36, dtype=int)
 
 
     def connect_hardware(self):
@@ -48,25 +54,58 @@ class TDT_Circuit:
         self.circuit_state = False
 
 
-    def trigger_audio_sample_computer(self, audio_sample, time_bw_samples):
+    def set_gain(self):
+        for i , gain_value in enumerate(self.gain_values):
+            scaled_gain = np.round((gain_value / 100), 2)
+            self.circuit.set_tag(f"ch{i+1}_gain", scaled_gain)
+
+
+    def play_audio_on_computer(self, audio_sample):
         sd.play(audio_sample.data, audio_sample.sample_rate)
         time.sleep(audio_sample.sample_length)
-        if time_bw_samples is not None:
-            time.sleep(time_bw_samples)
 
 
-    def trigger_audio_sample(self, audio_sample, channel, time_bw_samples, **kwargs):
+    def play_audio_speaker_array(self, audio_sample):
+        self.set_gain()
+
         speaker_buffer = self.circuit.get_buffer(data_tag='speaker', mode='w')
         speaker_buffer.set(audio_sample.data)
-        self.circuit.set_tag("chan", channel)
-        # gain = kwargs.get('gain', 1)
-        # self.circuit.set_tag("gain", gain)
-        sd.play(audio_sample.data, audio_sample.sample_rate)
+
         self.circuit.trigger(trigger=1)
 
         time.sleep(audio_sample.sample_length)
 
-        if time_bw_samples is not None:
-            time.sleep(time_bw_samples)
+
+    def stop_audio_speaker_array(self):
+        self.circuit.stop()
 
 
+# Static function for getting relative paths
+def base_path(relative_path):
+    current_script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(os.path.dirname(current_script_dir))
+    return os.path.join(base_dir, relative_path)
+
+
+if __name__ == '__main__':
+    from app.hardware.Model.data_manager.audio_abstract import Audio_Abstract
+    print(base_path('docs/audio_files/'))
+    white_noise_filepath = base_path('Model/tdt_hardware/audio_files/white_noise.wav')
+    white_noise = Audio_Abstract(filepath=white_noise_filepath)
+
+    hardware = TDT_Circuit()
+    # hardware.play_audio_on_computer(white_noise)
+    # hardware.connect_hardware()
+    # hardware.play_audio_speaker_array(white_noise)
+    # hardware.stop_audio_speaker_array()
+
+
+    # play sound
+    hardware.play_audio_speaker_array(white_noise)
+    # change gain values
+    for i in range(30):
+        hardware.gain_values[i-1] = 0
+        hardware.gain_values[i] = 65
+        time.sleep(3)
+
+    hardware.stop_audio_speaker_array()

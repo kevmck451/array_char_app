@@ -8,7 +8,7 @@ def base_path(relative_path):
 # Main App Settings
 window_title = 'Phase Array Characterization Anechoic Chamber Experiment'
 
-window_width = 1300
+window_width = 1420
 window_height = 900
 min_window_width = window_width
 min_window_height = window_height
