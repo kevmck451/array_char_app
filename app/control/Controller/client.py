@@ -1,24 +1,29 @@
 
-
+from app.control.Controller.events import Event
 
 import socket
 import threading
 import time
+import numpy as np
 
 class Sender_Client:
-    def __init__(self, host='192.168.1.253', port=12345, name='unknown'):
+    def __init__(self, host='127.0.0.1', port=12345, name='unknown'):
+        chamber_comp_ip = '192.168.1.253'
         self.host = host
         self.port = port
         self.name = name
         self.connected = False
         self.socket = None
         self.cancel_attempt = False
-        self.connected = False
         self.connect_thread = threading.Thread(target=self.ensure_connection, daemon=True)
         self.connect_thread.start()
         self.heartbeat_thread = None
         self.heartbeat_attempt = 0
+        self.controller = None
+        self.disconnect_thread = None
 
+    def set_controller(self, controller):
+        self.controller = controller
 
     def ensure_connection(self):
         print('Attempting to Connect with TDT Hardware')
@@ -35,6 +40,8 @@ class Sender_Client:
                 self.connected = True
                 self.heartbeat_thread = threading.Thread(target=self.heartbeat, daemon=True)
                 self.heartbeat_thread.start()
+                self.disconnect_thread = threading.Thread(target=self.wait_for_disconnect, daemon=True)
+                self.disconnect_thread.start()
 
             except Exception as e:
                 # print(f"Error connecting to the server: {e}")
@@ -46,8 +53,8 @@ class Sender_Client:
         wait_time = 3
         burst_time = 0.1
 
-        while self.connected == True:
-
+        while self.connected:
+            print('beating')
             try:
                 self.socket.sendall('heartbeat'.encode())
                 time.sleep(burst_time)
@@ -56,20 +63,25 @@ class Sender_Client:
                 self.socket.sendall('heartbeat'.encode())
                 self.heartbeat_attempt = 0
             except socket.error as e:
+                print(f'heartbeat failed attempt: {self.heartbeat_attempt}')
                 self.heartbeat_attempt += 1
 
             if self.heartbeat_attempt == 5:
-                print('PI HARDWARE DISCONNECTED')
+                print('HARDWARE DISCONNECTED')
                 self.connected = False
-                self.connect_thread = threading.Thread(target=self.ensure_connection, daemon=True)
-                self.connect_thread.start()
+                self.controller.handle_event(Event.DISCONNECT_HARDWARE)
+                # self.connect_thread = threading.Thread(target=self.ensure_connection, daemon=True)
+                # self.connect_thread.start()
 
             time.sleep(wait_time)
 
     def send_data(self, data):
         if self.connected:
             try:
+                if isinstance(data, np.ndarray):
+                    data = np.array2string(data)
                 self.socket.sendall(data.encode())
+
                 print("event data sent")
             except socket.error as e:
                 print(f"Error sending data: {e}")
@@ -77,6 +89,13 @@ class Sender_Client:
                 self.socket.close()
         else:
             print("Not connected. Unable to send data.")
+
+    def wait_for_disconnect(self):
+        response = self.socket.recv(1024).decode()
+        print(response)
+        if 'server_disconnecting' in response:
+            self.connected = False
+            self.controller.handle_event(Event.DISCONNECT_HARDWARE)
 
     def close_connection(self):
         self.cancel_attempt = True
@@ -87,11 +106,13 @@ class Sender_Client:
 
 # Usage example
 if __name__ == '__main__':
+
+
     # for running mac to mac
-    # client = Event_Sender_Client('127.0.0.1', name='MacBook')
+    client = Sender_Client('127.0.0.1', name='MacBook')
 
     # for running mac to tdt hardware
-    client = Sender_Client(name='MacBook')
+    # client = Sender_Client('192.168.1.253', name='MacBook')
 
     while not client.connected:
         # print("Waiting for connection...")

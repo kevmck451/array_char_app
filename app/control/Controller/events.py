@@ -10,3 +10,5 @@ class Event(Enum):
 
     PLAY_AUDIO = auto()
     STOP_AUDIO = auto()
+
+    GAIN_VALUES = auto()

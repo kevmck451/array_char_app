@@ -20,7 +20,7 @@ class TDT_Circuit:
         self.num_speakers = 36
 
         # instantiate the gain values in a list of num_speakers
-        self.gain_values = np.zeros(36, dtype=int)
+        self.gain_values = np.zeros(self.num_speakers, dtype=int)
 
 
     def connect_hardware(self):
@@ -96,8 +96,15 @@ if __name__ == '__main__':
     audio = Audio_Abstract(filepath=audio_filepath)
 
     hardware = TDT_Circuit()
-    hardware.play_audio_on_computer(audio, gain=100)
-    # hardware.connect_hardware()
+
+    # hardware.play_audio_on_computer(audio, gain=100)
+
+    hardware.initialize = True
+    hardware.connect_hardware()
+
+
+
+
     # hardware.play_audio_speaker_array(white_noise)
     # hardware.stop_audio_speaker_array()
 

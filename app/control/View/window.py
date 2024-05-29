@@ -7,6 +7,7 @@ import math
 from tkinter import filedialog, StringVar, Listbox, Scrollbar, END, SINGLE, EXTENDED
 from pathlib import Path
 import tkinter as tk
+import numpy as np
 
 
 class SpeakerControlApp(ctk.CTk):
@@ -41,6 +42,7 @@ class SpeakerControlApp(ctk.CTk):
         self.real_time_update = False
         self.load_box_limit = 10
         self.current_file_selection = None
+        self.gain_values = np.zeros(self.num_speakers, dtype=int)
 
         audio_filepath = base_path('audio_files')
         self.file_list = [x for x in Path(audio_filepath).iterdir()]
@@ -346,6 +348,7 @@ class SpeakerControlApp(ctk.CTk):
     def update_visuals(self):
         for i, (x, y) in enumerate(self.speaker_positions):
             self.canvas.itemconfig(f'speaker_{i}', fill=self.get_color_based_on_gain(self.gain_sliders[i].get()))
+            self.gain_values[i] = self.gain_sliders[i].get()
 
     def update_slider_value(self, value, index):
         self.slider_value_labels[index].configure(text=str(int(value)))

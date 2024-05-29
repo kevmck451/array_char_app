@@ -1,7 +1,7 @@
 # Controller App for Phase Array Anechoic Chamber Characterization Experiment
 
-from View.window import SpeakerControlApp
-from Controller.controller import Controller
+from app.control.View.window import SpeakerControlApp
+from app.control.Controller.controller import Controller
 
 
 if __name__ == "__main__":

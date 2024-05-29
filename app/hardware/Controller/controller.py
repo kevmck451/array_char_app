@@ -1,4 +1,4 @@
-
+# Hardware Controller File
 
 
 from app.hardware.Model.tdt_hardware.TDT_manager import TDT_Circuit
@@ -20,6 +20,9 @@ class Controller:
         self.app_state = State.IDLE
         self.tdt_hardware = TDT_Circuit()
         self.audio_loading = False
+        self.server_running = False
+        self.gain_values = None
+        self.server = None
 
     def set_gui(self, gui):
         self.gui = gui
@@ -51,11 +54,20 @@ class Controller:
         elif event == Event.SERVER_DISCONNECT:
             if self.app_state == State.IDLE:
                 self.app_state = State.SERVER_INITIALIZING
+                self.server_running = False
                 self.server.stop()
                 self.gui.Main_Frame.toggle_server_button()
                 self.app_state = State.IDLE
 
+        elif event == Event.PLAY_AUDIO:
+            # pass along audio to play
+            # send gain values
+            # self.tdt_hardware.play_audio_speaker_array()
+            pass
 
+
+        elif event == Event.STOP_AUDIO:
+            pass
 
         # UTILITY EVENTS
         # -----------------------------------
@@ -63,6 +75,7 @@ class Controller:
         elif event == Event.ON_CLOSE:
             if self.tdt_hardware.circuit_state:
                 self.tdt_hardware.disconnect_hardware()
+                self.server.stop()
 
         # Loading Box was Closed
         elif event == Event.STOP_LOADING:
@@ -101,11 +114,11 @@ class Controller:
 
     def start_server(self):
         # set for simulation connection with 0.0.0.0 if testing
-        self.server = Server('0.0.0.0')
-        # server = Server()
+        # self.server = Server('0.0.0.0')
+        self.server = Server()
+        self.server.set_controller(self)
         event_thread = threading.Thread(target=self.server.run, daemon=True)
         event_thread.start()
-        # pretend that it connected
         self.gui.Main_Frame.toggle_server_button()
         self.app_state = State.IDLE
 
