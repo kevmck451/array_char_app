@@ -54,7 +54,7 @@ class Sender_Client:
         burst_time = 0.1
 
         while self.connected:
-            print('beating')
+            # print('beating')
             try:
                 self.socket.sendall('heartbeat'.encode())
                 time.sleep(burst_time)
@@ -90,12 +90,20 @@ class Sender_Client:
         else:
             print("Not connected. Unable to send data.")
 
+
+
     def wait_for_disconnect(self):
-        response = self.socket.recv(1024).decode()
-        print(response)
-        if 'server_disconnecting' in response:
-            self.connected = False
-            self.controller.handle_event(Event.DISCONNECT_HARDWARE)
+        try:
+            response = self.socket.recv(1024).decode()
+            print(response)
+            if 'server_disconnecting' in response:
+                self.connected = False
+                self.controller.handle_event(Event.DISCONNECT_HARDWARE)
+        except OSError as e:
+            if e.errno == 9:  # Bad file descriptor error
+                print("Socket already closed.")
+            else:
+                raise  # Re-raise any unexpected errors
 
     def close_connection(self):
         self.cancel_attempt = True
