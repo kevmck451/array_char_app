@@ -26,6 +26,7 @@ class Server:
         self.controller = controller
 
     def handle_client(self, client_socket):
+        self.controller.handle_event(Event.CONTROLLER_CONNECTED)
         with client_socket:
             while True:
                 data = client_socket.recv(1024)
@@ -35,6 +36,9 @@ class Server:
                 message = data.decode()
                 if 'heartbeat' in message:
                     pass
+                elif 'disconnecting' in message:
+                    print('client disconnecting')
+                    self.controller.handle_event(Event.CONTROLLER_DISCONNECTED)
                 elif 'play_audio' in message:
                     print('play audio command sent')
                 elif 'stop_audio' in message:
@@ -85,6 +89,7 @@ class Server:
         self.send_all('server_disconnecting')
         print('Server Disconnected')
         self.running = False
+        self.controller.server_running = False
         self.socket.close()
         self.client_list.clear()
 

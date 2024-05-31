@@ -106,6 +106,7 @@ class Sender_Client:
                 raise  # Re-raise any unexpected errors
 
     def close_connection(self):
+        self.socket.sendall('disconnecting'.encode())
         self.cancel_attempt = True
         self.connected = False
         if self.socket:

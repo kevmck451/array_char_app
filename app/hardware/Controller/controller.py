@@ -57,7 +57,19 @@ class Controller:
                 self.server_running = False
                 self.server.stop()
                 self.gui.Main_Frame.toggle_server_button()
+                self.gui.Main_Frame.server_running = False
+                self.gui.Main_Frame.change_server_status()
                 self.app_state = State.IDLE
+
+        elif event == Event.CONTROLLER_CONNECTED:
+            print('controller connected')
+            self.gui.Main_Frame.server_running = True
+            self.gui.Main_Frame.change_server_status()
+
+        elif event == Event.CONTROLLER_DISCONNECTED:
+            print('controller disconnected')
+            self.gui.Main_Frame.server_running = False
+            self.gui.Main_Frame.change_server_status()
 
         elif event == Event.PLAY_AUDIO:
             # pass along audio to play

@@ -13,6 +13,10 @@ class Event(Enum):
     # Initializing Server Events
     START_HARDWARE_SERVER = auto()
     SERVER_DISCONNECT = auto()
+    CONTROLLER_CONNECTED = auto()
+    CONTROLLER_DISCONNECTED = auto()
+
+    # Media
     PLAY_AUDIO = auto()
     STOP_AUDIO = auto()
     GAIN_VALUES_UPDATED = auto()
