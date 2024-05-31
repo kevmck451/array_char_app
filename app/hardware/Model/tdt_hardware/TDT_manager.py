@@ -7,10 +7,6 @@ import os
 
 class TDT_Circuit:
     def __init__(self):
-
-        # random = np.random.choice([True, False])
-        # if random: self.circuit_state = True
-        # else: self.circuit_state = False
         self.circuit_state = False
         self.initialize = False
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,7 +17,6 @@ class TDT_Circuit:
 
         # instantiate the gain values in a list of num_speakers
         self.gain_values = np.zeros(self.num_speakers, dtype=int)
-
 
     def connect_hardware(self):
         while self.initialize:
@@ -48,11 +43,9 @@ class TDT_Circuit:
                 self.circuit_state = False
                 time.sleep(1)
 
-
     def disconnect_hardware(self):
         self.circuit.stop()
         self.circuit_state = False
-
 
     def set_gain(self):
         for i , gain_value in enumerate(self.gain_values):
@@ -71,7 +64,6 @@ class TDT_Circuit:
         sd.play(audio_samples, audio_sample.sample_rate)
         time.sleep(audio_sample.sample_length)
 
-
     def play_audio_speaker_array(self, audio_sample):
         self.set_gain()
 
@@ -81,7 +73,6 @@ class TDT_Circuit:
         self.circuit.trigger(trigger=1)
 
         time.sleep(audio_sample.sample_length)
-
 
     def stop_audio_speaker_array(self):
         self.circuit.stop()
