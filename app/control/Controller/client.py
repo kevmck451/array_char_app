@@ -9,7 +9,8 @@ import numpy as np
 class Sender_Client:
     def __init__(self, host='127.0.0.1', port=12345, name='unknown'):
         chamber_comp_ip = '192.168.1.253'
-        self.host = host
+        chamber_comp_ip2 = '141.225.179.76'
+        self.host = chamber_comp_ip2 # host
         self.port = port
         self.name = name
         self.connected = False
@@ -120,10 +121,11 @@ if __name__ == '__main__':
 
 
     # for running mac to mac
-    client = Sender_Client('127.0.0.1', name='MacBook')
+    # client = Sender_Client('127.0.0.1', name='MacBook')
 
     # for running mac to tdt hardware
     # client = Sender_Client('192.168.1.253', name='MacBook')
+    client = Sender_Client('141.225.179.76', name='MacBook')
 
     while not client.connected:
         # print("Waiting for connection...")

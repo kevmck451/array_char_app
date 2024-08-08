@@ -96,7 +96,6 @@ class Controller:
                 self.connected()
                 self.waiting_for_connection = False
 
-
     def connected(self):
         self.hardware_connected = True
 
