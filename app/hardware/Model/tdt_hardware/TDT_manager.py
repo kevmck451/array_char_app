@@ -10,7 +10,7 @@ class TDT_Circuit:
         self.circuit_state = False
         self.initialize = False
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
-        new_path = os.path.join(current_script_dir, 'tdt_circuit_2.rcx')
+        new_path = os.path.join(current_script_dir, 'tdt_circuit_1.rcx')
         self.RPvds_circuit_filepath = new_path
 
         self.num_speakers = 36
