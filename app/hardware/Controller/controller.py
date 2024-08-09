@@ -12,9 +12,6 @@ from threading import Thread
 import threading
 
 
-
-
-
 class Controller:
     def __init__(self):
         self.app_state = State.IDLE
@@ -74,8 +71,8 @@ class Controller:
         elif event == Event.PLAY_AUDIO:
             # pass along audio to play
             # send gain values
-            # self.tdt_hardware.play_audio_speaker_array()
-            pass
+            self.tdt_hardware.play_audio_speaker_array()
+            # pass
 
 
         elif event == Event.STOP_AUDIO:

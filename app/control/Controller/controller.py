@@ -56,22 +56,20 @@ class Controller:
             print('playing audio')
             self.gui.toggle_play()
             self.start_data_stream()
+            filename = self.gui.current_file_selection
 
-            # Find the matching file path or None if not found
-            filepath = next((path for path in self.gui.file_list if Path(path).stem == self.gui.current_file_selection), None)
+            if self.hardware_connected:
+                self.client.send_data(f'play_audio:{filename}')
 
-            if filepath:
-                audio = Audio_Abstract(filepath=filepath, num_channels=1)
-
-                if self.hardware_connected:
-                    self.client.send_data('play_audio')
-
-                else:
+            else:
+                filepath = next((path for path in self.gui.file_list if Path(path).stem == filename), None)
+                if filepath:
+                    audio = Audio_Abstract(filepath=filepath, num_channels=1)
                     gain = self.gui.knob.get()
                     comp_audio.play_audio_on_computer(audio, gain=gain)
 
-            else:
-                self.gui.warning_popup_general('Error with filepath')
+                else:
+                    self.gui.warning_popup_general('Error with filepath')
 
         elif event == Event.STOP_AUDIO:
             print('stopping audio')

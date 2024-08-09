@@ -41,15 +41,19 @@ class Server:
                     self.controller.handle_event(Event.CONTROLLER_DISCONNECTED)
                 elif 'play_audio' in message:
                     print('play audio command sent')
+                    filepath = message.split(':')[1]
+                    print(filepath)
+                    self.controller.handle_event(Event.PLAY_AUDIO)
                 elif 'stop_audio' in message:
                     print('stop audio command sent')
+                    self.controller.handle_event(Event.STOP_AUDIO)
 
                 # statement for sending audio data
 
                 else:
                     # gain values
                     gain_values = np.fromstring(message.strip('[]'), sep=' ', dtype=int)
-                    print(gain_values)
+                    # print(gain_values)
                     # gain values
 
     def run(self):
