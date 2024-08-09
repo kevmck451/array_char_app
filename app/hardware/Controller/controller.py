@@ -2,13 +2,16 @@
 
 
 from app.hardware.Model.tdt_hardware.TDT_manager import TDT_Circuit
+from app.control.Controller.audio_abstract import Audio_Abstract
 from app.hardware.Controller.states import State
 from app.hardware.Controller.time_class import time_class
 from app.hardware.Model.server.server import Server
 from app.hardware.Controller.events import Event
 
 
+
 from threading import Thread
+from pathlib import Path
 import threading
 
 
@@ -18,8 +21,8 @@ class Controller:
         self.tdt_hardware = TDT_Circuit()
         self.audio_loading = False
         self.server_running = False
-        self.gain_values = None
         self.server = None
+        self.audio_filename = None
 
     def set_gui(self, gui):
         self.gui = gui
@@ -69,14 +72,10 @@ class Controller:
             self.gui.Main_Frame.change_server_status()
 
         elif event == Event.PLAY_AUDIO:
-            # pass along audio to play
-            # send gain values
-            self.tdt_hardware.play_audio_speaker_array()
-            # pass
-
+            self.start_audio_on_speaker_array()
 
         elif event == Event.STOP_AUDIO:
-            pass
+            self.tdt_hardware.stop_audio_speaker_array()
 
         # UTILITY EVENTS
         # -----------------------------------
@@ -131,6 +130,11 @@ class Controller:
         self.gui.Main_Frame.toggle_server_button()
         self.app_state = State.IDLE
 
-
-
+    def start_audio_on_speaker_array(self):
+        filepath = next((path for path in self.gui.file_list if Path(path).stem == self.audio_filename), None)
+        if filepath:
+            audio = Audio_Abstract(filepath=filepath, num_channels=1)
+            self.tdt_hardware.play_audio_speaker_array(audio)
+        else:
+            self.gui.warning_popup_general('Error with filepath')
 

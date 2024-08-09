@@ -1,9 +1,13 @@
-import customtkinter as ctk
-from tkinter import ttk
-import tkinter as tk
 
 import app.hardware.View.configuration as configuration
 from app.hardware.Controller.events import Event
+from app.docs.resources import base_path
+
+
+import customtkinter as ctk
+from tkinter import ttk
+import tkinter as tk
+from pathlib import Path
 
 
 class Main_Window(ctk.CTk):
@@ -30,6 +34,9 @@ class Main_Window(ctk.CTk):
 
         # Ending Procedures
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        audio_filepath = base_path('audio_files')
+        self.file_list = [x for x in Path(audio_filepath).iterdir()]
 
     def on_close(self):
         # Perform any cleanup or process termination steps here

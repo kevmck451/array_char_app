@@ -7,10 +7,9 @@ from app.control.Controller.audio_abstract import Audio_Abstract
 import app.control.Controller.audio_player as comp_audio
 from app.docs.resources import base_path
 
-
-import threading
 from pathlib import Path
 import numpy as np
+import threading
 import time
 
 

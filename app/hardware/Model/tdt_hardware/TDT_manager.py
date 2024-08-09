@@ -48,6 +48,9 @@ class TDT_Circuit:
         self.circuit_state = False
 
     def set_gain(self):
+        assert len(self.gain_values == self.num_speakers)
+
+        # todo: confirm gain value, float < 1 or int on a scale?
         for i , gain_value in enumerate(self.gain_values):
             if gain_value > 100: gain_value = 100
             if gain_value < 0: gain_value = 0
@@ -72,10 +75,12 @@ class TDT_Circuit:
 
         self.circuit.trigger(trigger=1)
 
+        # todo: make a thread as to not block
         time.sleep(audio_sample.sample_length)
 
     def stop_audio_speaker_array(self):
-        self.circuit.stop()
+        self.circuit.trigger(trigger=2)
+        # self.circuit.stop()
 
 
 
